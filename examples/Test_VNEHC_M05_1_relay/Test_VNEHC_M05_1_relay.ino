@@ -33,7 +33,7 @@ void setup() {
 
   // // check R Pulldown Port 3
 
-  if(!Task_VNEHC_Test1.isPullDown_Port3_OK()) 
+  if(Task_VNEHC_Test1.isPullDown_Port3_OK() != VNEHC_List_Error_None) 
   {
     Task_VNEHC_Test1.showInfoWithErrorCode(VNEHC_List_Error_PORT3_R_PULLDOWN_FAIL);
     // while(1);

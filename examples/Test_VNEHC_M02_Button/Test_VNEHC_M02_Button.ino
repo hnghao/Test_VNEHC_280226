@@ -1,7 +1,7 @@
 /*
     y251222: 
         Phát hiện chập nguồn ngắt OK
-        Sang sang Test
+        San sang Test
 
 */
 
@@ -20,9 +20,24 @@ Task_VNEHC_Test Task_VNEHC_Test1;
 
 #define DELAYVAL 500 // Time (in milliseconds) to pause between pixels
 
+uint8_t flag_ShowPullUpErr;
+
 void setup() {
   Serial.begin(115200);
+  Serial.println();
+  Serial.println();
+  Serial.println();
+  Serial.println();
+  Serial.println();
   Task_VNEHC_Test1.setup();
+  
+  Task_VNEHC_Test1.addOverCurrentCallback([](float current_mA){
+    Serial.print(F("\t\t ERROR Over Current: "));
+    Serial.print(current_mA);
+    Serial.println(F(" mA"));
+    Serial.println(F("\t\tReset for next Test"));
+    while(1);
+  });
   
   Task_VNEHC_Test1.checkVoltageCurrent();
 
@@ -31,25 +46,33 @@ void setup() {
     while(1);
   }
 
+
   // Task_VNEHC_Test1.checkVolSignal4P();
   if(Task_VNEHC_Test1.checkVolSignal3P() != VNEHC_List_Error_None)
   {
-    while(1)
-    {
-      Serial.println("===");
-      delay(2000);
-    }
+    Serial.println("\t\tERROR");
+    // while(1)
+    // {
+    //   Task_VNEHC_Test1.delayms(2000);
+    // }
   }
 
-  // pinMode(PIN, INPUT_PULLUP);
+  // if(Task_VNEHC_Test1.isPullUp_Port3_OK() != VNEHC_List_Error_None)
+  // {
+  //   Serial.println("ERROR PULLUP");
+  //   while(1)
+  //   {
+  //     Task_VNEHC_Test1.delayms(2000);
+  //   }
+  // }
 
   showNote();
 
-  // checkAnalog();
 }
 
 void loop() {
-  checkAnalog();
+  checkAnalog2();
+  Task_VNEHC_Test1.delayms(10);
 }
 
 void checkAnalog()
@@ -77,6 +100,53 @@ void checkAnalog()
   Task_VNEHC_Test1.delayms(1000);
 }
 
+void checkAnalog2()
+{
+  if(Task_VNEHC_Test1.isPullUp_Port3_OK() != VNEHC_List_Error_None)
+  {
+    if(flag_ShowPullUpErr == true)
+    {
+      flag_ShowPullUpErr = false;
+      Serial.println(F("ERROR PULLUP"));
+      // Task_VNEHC_Test1.delayms(2000);  
+    }
+    
+  }
+  else
+  {
+    Serial.println(F("Nhan Nut de Test"));
+    while(1)
+    {
+      if(Task_VNEHC_Test1.isPullDown_Port3_OK() == VNEHC_List_Error_None)
+      {
+        // Serial.println(F("\t\tNut Nhan GOOD\t\t Nut tiep theo"));
+        // flag_ShowPullUpErr = true;
+        Task_VNEHC_Test1.delayms(1000);
+        // while(Task_VNEHC_Test1.isPullUp_Port3_OK() != VNEHC_List_Error_None)
+        // {
+        //   Task_VNEHC_Test1.delayms(10);
+        // }
+
+        if(Task_VNEHC_Test1.isPullUp_Port3_OK(1) == VNEHC_List_Error_None)
+        {
+          Serial.println(F("\t\tNut Nhan GOOD\t\t Nut tiep theo"));
+          flag_ShowPullUpErr = true;
+          Task_VNEHC_Test1.delayms(1000);
+        }
+        else
+        {
+          Serial.println(F("\t\tNut Nhan ERROR\t\t Nut tiep theo"));
+          flag_ShowPullUpErr = true;
+          Task_VNEHC_Test1.delayms(1000);
+        }
+
+        break;
+      }
+      
+    }
+  }
+}
+
 void showNote()
 {
   Serial.println();
@@ -84,7 +154,8 @@ void showNote()
   Serial.println();
   Serial.println();
   Serial.println(F("LUU Y TRUOC KHI TEST"));
-  Serial.println(F("Nhan nut (~0mV) và nha nut (~3300mV), quan sat gia tri mV"));
+  // Serial.println(F("Nhan nut (~0mV) và nha nut (~3300mV), quan sat gia tri mV"));
+  Serial.println(F("Nhan nut de Test, quan sat GOOD hoac ERROR"));
   Serial.println(F(""));
   Task_VNEHC_Test1.delayms(3000);
 }

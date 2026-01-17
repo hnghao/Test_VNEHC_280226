@@ -46,8 +46,10 @@
 #define PIN_VNEHC_PWR_OUT_2   4
 #define PIN_VNEHC_PWR_OUT_2_ACTIVE   1
 
-
+#define ADC_RESOLUTION    1023.0
 #define ADCVALUE_3V3_THRESHOLD   720   // ~3.3V
+#define ADCVALUE_PULL_UP_THRESHOLD   6832   
+#define ADCVALUE_PULL_UP_THRESHOLD_ERROR   50   
 
 // Safe voltage range for VNEHC power input
 #define INA_VOLTAGE_SAFE_MAX_mV   5100
@@ -69,6 +71,7 @@ INA3221 *INA;
 TwoWire *VNEHC_Wire;
 Stream *VNEHC_Serial;
 void (*user_callback_help)(void);
+void (*user_callback_OverCurrrent)(float current_mA);
 
 void restart()
 {
@@ -221,7 +224,11 @@ void checkOverCurrent(void *user_callback(void)=NULL)
     {
       user_callback();
     }
-    while(1);
+    if(this->user_callback_OverCurrrent != NULL)
+    {
+      this->user_callback_OverCurrrent(tempCurrent);
+    }
+    // while(1); // y260117 - commented out to avoid blocking
   }
 }
 
@@ -336,17 +343,17 @@ uint8_t checkVolSignal3P()
   delay(10);
   int adcValue = analogRead(PIN_PORT3_SIG);
 
-  if(adcValue > ADCVALUE_3V3_THRESHOLD)
+  if(IS_INRANGE(adcValue, ADCVALUE_3V3_THRESHOLD - 100, ADCVALUE_3V3_THRESHOLD + 100) == false)
   {
     VNEHC_SHOW_LOG_LN(F("BUGGGG"))
     VNEHC_SHOW_LOG(F("Volt PORT3 not 3V3 :"));
-    VNEHC_SHOW_LOG_LN(String(adcValue * (5.0 / 1023.0), 3));
+    VNEHC_SHOW_LOG_LN(String(adcValue * (5.0 / ADC_RESOLUTION), 3));
     return VNEHC_List_Error_SIG_NOT_3V3;
   }
   else
   {
     VNEHC_SHOW_LOG(F("Volt PORT3 3V3 OK :"));
-    VNEHC_SHOW_LOG_LN(String(adcValue * (5.0 / 1023.0), 3));
+    VNEHC_SHOW_LOG_LN(String(adcValue * (5.0 / ADC_RESOLUTION), 3));
   }
   return VNEHC_List_Error_None;
 }
@@ -362,13 +369,13 @@ uint8_t checkVolSignal4P()
   {
     VNEHC_SHOW_LOG_LN(F("BUGGGG"))
     VNEHC_SHOW_LOG(F("Volt PORT4 not 3V3 :"));
-    VNEHC_SHOW_LOG_LN(String(adcValue_SDA * (5.0 / 1023.0), 3) + "/" + String(adcValue_SCL * (5.0 / 1023.0), 3));
+    VNEHC_SHOW_LOG_LN(String(adcValue_SDA * (5.0 / ADC_RESOLUTION), 3) + "/" + String(adcValue_SCL * (5.0 / ADC_RESOLUTION), 3));
     return VNEHC_List_Error_SIG_NOT_3V3;
   }
   else
   {
     VNEHC_SHOW_LOG(F("Volt PORT4 3V3 OK :"));
-    VNEHC_SHOW_LOG_LN(String(adcValue_SDA * (5.0 / 1023.0), 3) + "/" + String(adcValue_SCL * (5.0 / 1023.0), 3));
+    VNEHC_SHOW_LOG_LN(String(adcValue_SDA * (5.0 / ADC_RESOLUTION), 3) + "/" + String(adcValue_SCL * (5.0 / ADC_RESOLUTION), 3));
   }
   return VNEHC_List_Error_None;
 }
@@ -384,13 +391,13 @@ uint8_t checkVolSignal4P_sSerial()
   {
     VNEHC_SHOW_LOG_LN(F("BUGGGG"))
     VNEHC_SHOW_LOG(F("Volt PORT4 sSerial not 3V3 (TX/RX):"));
-    VNEHC_SHOW_LOG_LN(String(adcValue_RX * (5.0 / 1023.0), 3) + "/" + String(adcValue_TX * (5.0 / 1023.0), 3));
+    VNEHC_SHOW_LOG_LN(String(adcValue_RX * (5.0 / ADC_RESOLUTION), 3) + "/" + String(adcValue_TX * (5.0 / ADC_RESOLUTION), 3));
     return VNEHC_List_Error_SIG_NOT_3V3;
   }
   else
   {
     VNEHC_SHOW_LOG(F("Volt PORT4 sSerial 3V3 OK :"));
-    VNEHC_SHOW_LOG_LN(String(adcValue_RX * (5.0 / 1023.0), 3) + "/" + String(adcValue_TX * (5.0 / 1023.0), 3));
+    VNEHC_SHOW_LOG_LN(String(adcValue_RX * (5.0 / ADC_RESOLUTION), 3) + "/" + String(adcValue_TX * (5.0 / ADC_RESOLUTION), 3));
   }
   return VNEHC_List_Error_None;
 }
@@ -409,6 +416,11 @@ void delayms(uint32_t ms)
 void addHelp(void *callback(void))
 {
   user_callback_help = callback;
+}
+
+void addOverCurrentCallback(void (*callback(float current_mA)))
+{
+  user_callback_OverCurrrent = callback;
 }
 
 void checkSerial()
@@ -432,24 +444,45 @@ uint32_t sumAnalog_CheckPullDown_Port3()
   uint32_t tempui32 = 0;
   for(int cf =0; cf < 10; cf++)
   {
-    tempui32 += analogRead(A0);
+    tempui32 += analogRead(PIN_PORT3_SIG);
     this->delayms(1);
   }
   return tempui32;
 }
 
-uint8_t isPullDown_Port3_OK()
+uint8_t isPullDown_Port3_OK(uint8_t paShowDebug = 0)
 {
   uint32_t tempui32 = this->sumAnalog_CheckPullDown_Port3();
   
   if(tempui32 < (10))   // ~ 0.25V
   {
-    return true;
+    return VNEHC_List_Error_None;
   }
-  VNEHC_SHOW_LOG(F("R Pulldown ERROR: "));
-  VNEHC_SHOW_LOG_LN(String(tempui32));
-  VNEHC_SHOW_LOG_LN(F("RESET Tool Test for next"));
-  return false;
+  if(paShowDebug)
+  {
+    VNEHC_SHOW_LOG(F("R Pulldown ERROR: "));
+    VNEHC_SHOW_LOG_LN(String(tempui32));
+    // VNEHC_SHOW_LOG_LN(F("RESET Tool Test for next"));
+  }
+  return VNEHC_List_Error_PORT3_R_PULLDOWN_FAIL;
+}
+
+uint8_t isPullUp_Port3_OK(uint8_t paShowDebug = 0)
+{
+  uint32_t tempui32 = this->sumAnalog_CheckPullDown_Port3();
+  
+  if(IS_INRANGE(tempui32, ADCVALUE_PULL_UP_THRESHOLD - ADCVALUE_PULL_UP_THRESHOLD_ERROR, ADCVALUE_PULL_UP_THRESHOLD + ADCVALUE_PULL_UP_THRESHOLD_ERROR))   // ~ 3V3
+  {
+    return VNEHC_List_Error_None;
+  }
+  if(paShowDebug)
+  {
+    VNEHC_SHOW_LOG(F("R Pull UP ERROR: "));
+    VNEHC_SHOW_LOG_LN(String(tempui32));
+    VNEHC_SHOW_LOG_LN(F("RESET Tool Test for next"));
+  }
+  
+  return VNEHC_List_Error_PORT3_R_PULLUP_FAIL;
 }
 
 void setPort3_Output(bool onoff)

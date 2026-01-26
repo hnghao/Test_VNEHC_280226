@@ -3,7 +3,7 @@
         kxn test lại với Button, vẫn tốt, chưa có bug
     y251222: 
         Phát hiện chập nguồn ngắt OK
-        San sang Test
+        San sang Test.
 
 */
 

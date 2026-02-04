@@ -62,6 +62,10 @@
 #define VNEHC_SHOW_LOG(...)     if(VNEHC_Serial) { VNEHC_Serial->print(__VA_ARGS__); }
 #define VNEHC_SHOW_LOG_LN(...)     if(VNEHC_Serial) { VNEHC_Serial->println(__VA_ARGS__); }
 
+extern "C" {
+typedef void (*user_callback_OverCurrrentWithClassInstance)(float current_mA, void *paClassInstance);
+}
+
 CREATE_TASK_STATE(Task_VNEHC_Test)
 Task_VNEHC_Test_CHECK_POWER_CURRENT
 END
@@ -72,6 +76,9 @@ TwoWire *VNEHC_Wire;
 Stream *VNEHC_Serial;
 void (*user_callback_help)(void);
 void (*user_callback_OverCurrrent)(float current_mA);
+
+user_callback_OverCurrrentWithClassInstance p_funct_OverCurrrentWithClassInstance = NULL;
+void *OverCurrrentWithClassInstance = NULL;
 
 void restart()
 {
@@ -228,6 +235,11 @@ void checkOverCurrent(void *user_callback(void)=NULL)
     {
       this->user_callback_OverCurrrent(tempCurrent);
     }
+    if(this->p_funct_OverCurrrentWithClassInstance != NULL)
+    {
+      this->p_funct_OverCurrrentWithClassInstance(tempCurrent, this->OverCurrrentWithClassInstance);
+    }
+
     // while(1); // y260117 - commented out to avoid blocking
   }
 }
@@ -437,6 +449,12 @@ void addHelp(void *callback(void))
 void addOverCurrentCallback(void (*callback(float current_mA)))
 {
   user_callback_OverCurrrent = callback;
+}
+
+void addOverCurrentCallback(user_callback_OverCurrrentWithClassInstance callback, void *paClassInstance)
+{
+  this->p_funct_OverCurrrentWithClassInstance = callback;
+  this->OverCurrrentWithClassInstance = paClassInstance;
 }
 
 void checkSerial()

@@ -1,36 +1,26 @@
 /*
-    Y260119: Code Test chưa hoàn thiện
-        - chưa dectect được lỗi Diod flyback trong code
-            - Các lỗi có thể gặp:
-                - Diod hở chân:
-                - Diod Ngược:
-    Y251229:
-        - Test được trở kéo xuống có hoạt động không
-        - Test được dòng hoạt động của led 
-            - ~18mA: Vàng, đỏ 
-            - ~14.4mA: Trắng, xanh dương 
-            - <5mA: Led không hoạt động: có thể hở chân R hạn dòng hoặc led bị hàn ngược
-            - > 20mA: Trở hạn dòng bị sai giá trị, kiểm tra lại nếu đúng phải là 220Ohm (221)
+    Y260204 KXN Build xong:
+      - Test hở Trở kéo xuống OK
+      - Test chập nguồn OK
+      - Test hở Diod OK
+      - Test biết được dòng điện hoạt động của relay có bất thường không
+      - Detect được kim test tại chân 3 của Transistor (SOT23) tiếp xúc không tốt
 
-            - Buzzer:
-                - 23mA ~ 32mA
-            
-            - 1 Relay
-                - 65mA~85mA
-                - Khi test cần lưu ý:
-                    - Diod flyback cần phải được KT trước: Chỉnh nguồn 5V 100mA, cho bật rồi tắt relay, 
-                    đo sóng tại chân C Transistor có vượt qua 6V là bị hở chân hoặc chết diod
-
-  
+    Y260130 kxn đang build, biên dịch chưa lỗi
 */
+#include "Relay_Test_Lib.h"
 
-#include "Task_VNEHC_Test.h"
+// uint8_t pinA_Diod = A1;
+// uint8_t pinD_Diod = 7;
+// uint8_t pin_Relay = 9;
+
+#define RELAY_ACTIVE  (1)
 
 Task_VNEHC_Test Task_VNEHC_Test1;
+Relay_Test_Lib Relay_Test_Lib1;
 
-// the setup routine runs once when you press reset:
 void setup() {
-  // initialize serial communication at 9600 bits per second:
+  // // put your setup code here, to run once:
   Serial.begin(115200);
   Serial.println();
   Serial.println();
@@ -38,6 +28,9 @@ void setup() {
   Serial.println();
   Serial.println();
   Serial.println(F("Start test M05 Relay"));
+  Serial.println();
+  Serial.println(F("Nho dat kim test tai chan 3 Transistor (ke ben diod)"));
+  Serial.println();
   Task_VNEHC_Test1.setup();
   Task_VNEHC_Test1.addHelp(&help);
 
@@ -58,52 +51,16 @@ void setup() {
     Serial.println(F("May be ERROR!!!"));
   }
 
-  // Bật led
-  Task_VNEHC_Test1.setPort3_Output(1);
+  // Relay_Test_Lib1.setup(&Task_VNEHC_Test1, &Serial, PIN_PORT4_RX, 9);
+  Relay_Test_Lib1.setup(&Task_VNEHC_Test1, &Serial);
+  Relay_Test_Lib1.setEnDebug(0);
+  Relay_Test_Lib1.start();
   
-  Task_VNEHC_Test1.delayms(100);
-  float tempCurrentmA = Task_VNEHC_Test1.getPort3_mA();
-  if(IS_INRANGE(tempCurrentmA,65,85))
-  {
-    Serial.println(F("Relay GOOD * * * * *"));
-    // Serial.println(F("RESET Tool Test for next"));
-  }
-  else if(tempCurrentmA < 65)
-  {
-    Serial.println(F("ERROR! Curent < 65mA"));
-    Serial.println(F("\t\t Kiem tra ho chan R ke ben Transistor, Transistor, Relay"));
-    Task_VNEHC_Test1.showInfoWithErrorCode(VNEHC_List_Error_PORT3_CURRENT_LOWER);
-    // Serial.println(F(""));
-    // Serial.println(F("RESET Tool Test for next"));
-  }
-  else if(tempCurrentmA > 85)
-  {
-    Serial.println(F("ERROR! Curent > 85mA"));
-    Task_VNEHC_Test1.showInfoWithErrorCode(VNEHC_List_Error_PORT3_CURRENT_HIGHER);
-    // Serial.println(F(""));
-    // Serial.println(F("RESET Tool Test for next"));
-  }
-
-  Serial.println(F(""));
-  Serial.println(F("RESET Tool Test for next"));
-  Serial.println();
-  
-  // Tắt led
-  Task_VNEHC_Test1.setPort3_Output(0);
-
 }
 
-// the loop routine runs over and over again forever:
 void loop() {
-  // // read the input on analog pin 0:
-  // // int sensorValue = analogRead(A0);
-  // uint32_t sensorValue = Task_VNEHC_Test1.sumAnalog_CheckPullDown_Port3();
-  // // print out the value you read:
-  // Serial.println(sensorValue);
-
-
-  // Serial.println(Task_VNEHC_Test1.getPort3_mA());
-  Task_VNEHC_Test1.delayms(1000);  // delay in between reads for stability
+  // put your main code here, to run repeatedly:
+  kxnTaskManager.run(millis());
 }
 
 void help()

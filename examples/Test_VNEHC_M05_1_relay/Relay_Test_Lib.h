@@ -58,36 +58,6 @@ void setup(Task_VNEHC_Test *pa_p_Task_VNEHC_Test, Stream *pa_debugPort = &Serial
     pRelayTestLib->current_mA = current_mA;
   }, this);
 
-  // pinMode(pin_Relay, OUTPUT);
-
-  // Serial.begin(115200);
-  // Serial.println(F("Start Test Relay"));
-
-  // Serial.print(F("ADC Start: "));
-  // Serial.println(analogRead(pinA_Diod));
-
-  // digitalWrite(pin_Relay, RELAY_ACTIVE);
-  // delay(200);
-
-  // Serial.print(F("ADC on: "));
-  // Serial.println(analogRead(pinA_Diod));
-  
-  // Serial.print(F("ADC off: "));
-  // digitalWrite(pin_Relay, !RELAY_ACTIVE);
-
-  // int tempArr[10];
-  // for(int cf = 0; cf < 10; cf++)
-  // {
-  //   tempArr[cf] = analogRead(pinA_Diod);
-  //   delayMicroseconds(10);
-  // }
-
-  // Serial.println("====");
-  // for(int cf = 0; cf < 10; cf++)
-  // {
-  //   Serial.println(tempArr[cf]);
-  // }
-
 }
 
 void start()

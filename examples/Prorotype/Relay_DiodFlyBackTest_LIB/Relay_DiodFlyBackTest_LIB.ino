@@ -1,4 +1,11 @@
 /*
+    Y260204 KXN Build xong:
+      - Test hở Trở kéo xuống OK
+      - Test chập nguồn OK
+      - Test hở Diod OK
+      - Test biết được dòng điện hoạt động của relay có bất thường không
+      - Detect được kim test tại chân 3 của Transistor (SOT23) tiếp xúc không tốt
+
     Y260130 kxn đang build, biên dịch chưa lỗi
 */
 #include "Relay_Test_Lib.h"
@@ -21,6 +28,9 @@ void setup() {
   Serial.println();
   Serial.println();
   Serial.println(F("Start test M05 Relay"));
+  Serial.println();
+  Serial.println(F("Nho dat kim test tai chan 3 Transistor (ke ben diod)"));
+  Serial.println();
   Task_VNEHC_Test1.setup();
   Task_VNEHC_Test1.addHelp(&help);
 
@@ -43,7 +53,9 @@ void setup() {
 
   // Relay_Test_Lib1.setup(&Task_VNEHC_Test1, &Serial, PIN_PORT4_RX, 9);
   Relay_Test_Lib1.setup(&Task_VNEHC_Test1, &Serial);
+  Relay_Test_Lib1.setEnDebug(0);
   Relay_Test_Lib1.start();
+  
 }
 
 void loop() {

@@ -360,8 +360,8 @@ uint8_t checkVolSignal3P(uint8_t paFlagDebug=0)
   {
     if(paFlagDebug)
     {
-      VNEHC_SHOW_LOG_LN(F("BUGGGG"));
-      VNEHC_SHOW_LOG(F("Volt PORT3 < 3V3 :"));
+      VNEHC_SHOW_LOG_LN(F("\t\t\t\tBUGGGG"));
+      VNEHC_SHOW_LOG(F("\t\t\tVolt PORT3 < 3V3 :"));
       VNEHC_SHOW_LOG_LN(String(adcValue * (5.0 / ADC_RESOLUTION), 3));
     }
     
@@ -371,8 +371,8 @@ uint8_t checkVolSignal3P(uint8_t paFlagDebug=0)
   {
     if(paFlagDebug)
     {
-      VNEHC_SHOW_LOG_LN(F("BUGGGG"));
-      VNEHC_SHOW_LOG(F("Volt PORT3 > 3V3 :"));
+      VNEHC_SHOW_LOG_LN(F("\t\t\t\tBUGGGG"));
+      VNEHC_SHOW_LOG(F("\t\t\tVolt PORT3 > 3V3 :"));
       VNEHC_SHOW_LOG_LN(String(adcValue * (5.0 / ADC_RESOLUTION), 3));
     }
     
@@ -380,8 +380,11 @@ uint8_t checkVolSignal3P(uint8_t paFlagDebug=0)
   }
   else
   {
-    VNEHC_SHOW_LOG(F("Volt PORT3 3V3 OK :"));
-    VNEHC_SHOW_LOG_LN(String(adcValue * (5.0 / ADC_RESOLUTION), 3));
+    if(paFlagDebug)
+    {
+      VNEHC_SHOW_LOG(F("Volt PORT3 3V3 OK :"));
+      VNEHC_SHOW_LOG_LN(String(adcValue * (5.0 / ADC_RESOLUTION), 3));
+    }
   }
   return VNEHC_List_Error_None;
 }

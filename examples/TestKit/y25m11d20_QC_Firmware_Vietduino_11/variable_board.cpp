@@ -209,6 +209,18 @@
             #define NUMPIXELS 1 // Popular NeoPixel ring size
             // Adafruit_NeoPixel *pPixels;
             Adafruit_NeoPixel Pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+            #define KXN_ON_LED(x)         Pixels.setPixelColor(0, Pixels.Color(255, 255, 255)); \
+                                          Pixels.show();  \
+                                          delay(x);
+
+            #define KXN_OFF_LED(x)        Pixels.clear(); \
+                                          Pixels.show();  \
+                                          delay(x);
+
+            #define KXN_CONTROL_LED(x)          KXN_ON_LED(x) \
+                                                KXN_OFF_LED(x)
+
             void Task1code( void * pvParameters ){
                   Serial.print("Task1 running on core ");
                   Serial.println(xPortGetCoreID());
@@ -228,31 +240,31 @@
                         Pixels.setPixelColor(0, Pixels.Color(255, 255, 255));
                         Pixels.show();   // Send the updated pixel colors to the hardware.
                         delay(500);
-                        // digitalWrite(ledpin, HIGH);
-                        // delay(ledDelay);
-                        // digitalWrite(ledpin, LOW);
-                        // delay(ledDelay);
 
-                        // if((numOfWifi > 0) && (numOfWifi < 3)){
-                        //       digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
-                        //       delay(1000);
-                        //       digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                        //       delay(1000);
-                        //       digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
-                        //       delay(1000);
-                        //       digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                        //       delay(1000);
-                        // }else if(numOfWifi <= 0){
-                        //       digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                        //       delay(2000);
-                        // }else{
-                        //       for(int cff = 0; cff <10; cff++){
-                        //             digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
-                        //             delay(100);
-                        //             digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                        //             delay(100);
-                        //       }
-                        // }
+                        if((numOfWifi > 0) && (numOfWifi < 3)){
+                              // digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
+                              // delay(1000);
+                              // digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                              // delay(1000);
+                              // digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
+                              // delay(1000);
+                              // digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                              // delay(1000);
+                              KXN_CONTROL_LED(1000)
+                              KXN_CONTROL_LED(1000)
+                        }else if(numOfWifi <= 0){
+                              // digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                              // delay(2000);
+                              KXN_OFF_LED(2000)
+                        }else{
+                              for(int cff = 0; cff <10; cff++){
+                                    // digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
+                                    // delay(100);
+                                    // digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                                    // delay(100);
+                                    KXN_CONTROL_LED(100)
+                              }
+                        }
                   } 
             }
       #else

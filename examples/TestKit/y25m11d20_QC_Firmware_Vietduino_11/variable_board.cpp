@@ -224,44 +224,17 @@
             void Task1code( void * pvParameters ){
                   Serial.print("Task1 running on core ");
                   Serial.println(xPortGetCoreID());
-                  // pinMode(KXN_LED_DEFAULT, OUTPUT);
-                  // if(pPixels != NULL)
-                  // {
-                  //       pPixels = new Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-                  // }
-                  // pPixels->begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
+                  
                   Pixels.begin();
 
                   for(;;){
-                        Pixels.clear(); // Set all pixel colors to 'off'
-                        Pixels.show();   // Send the updated pixel colors to the hardware.
-                        delay(500);
-
-                        Pixels.setPixelColor(0, Pixels.Color(255, 255, 255));
-                        Pixels.show();   // Send the updated pixel colors to the hardware.
-                        delay(500);
-
                         if((numOfWifi > 0) && (numOfWifi < 3)){
-                              // digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
-                              // delay(1000);
-                              // digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                              // delay(1000);
-                              // digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
-                              // delay(1000);
-                              // digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                              // delay(1000);
                               KXN_CONTROL_LED(1000)
                               KXN_CONTROL_LED(1000)
                         }else if(numOfWifi <= 0){
-                              // digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                              // delay(2000);
                               KXN_OFF_LED(2000)
                         }else{
                               for(int cff = 0; cff <10; cff++){
-                                    // digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
-                                    // delay(100);
-                                    // digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                                    // delay(100);
                                     KXN_CONTROL_LED(100)
                               }
                         }

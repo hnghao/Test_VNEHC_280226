@@ -198,39 +198,97 @@
       TaskHandle_t Task2;
       int numOfWifi = 0;
       unsigned long ledDelay = 100;
+      
+      
+      #if defined(ESP32S3_N16R8_DEVKIT) 
+            #include <Adafruit_NeoPixel.h>
+            // Which pin on the Arduino is connected to the NeoPixels?
+            #define PIN        KXN_LED_DEFAULT // On Trinket or Gemma, suggest changing this to 1
 
-      void Task1code( void * pvParameters ){
-            Serial.print("Task1 running on core ");
-            Serial.println(xPortGetCoreID());
-            pinMode(KXN_LED_DEFAULT, OUTPUT);
-            for(;;){
-                  // digitalWrite(ledpin, HIGH);
-                  // delay(ledDelay);
-                  // digitalWrite(ledpin, LOW);
-                  // delay(ledDelay);
+            // How many NeoPixels are attached to the Arduino?
+            #define NUMPIXELS 1 // Popular NeoPixel ring size
+            // Adafruit_NeoPixel *pPixels;
+            Adafruit_NeoPixel Pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+            void Task1code( void * pvParameters ){
+                  Serial.print("Task1 running on core ");
+                  Serial.println(xPortGetCoreID());
+                  // pinMode(KXN_LED_DEFAULT, OUTPUT);
+                  // if(pPixels != NULL)
+                  // {
+                  //       pPixels = new Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+                  // }
+                  // pPixels->begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
+                  Pixels.begin();
 
-                  if((numOfWifi > 0) && (numOfWifi < 3)){
-                        digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
-                        delay(1000);
-                        digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                        delay(1000);
-                        digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
-                        delay(1000);
-                        digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                        delay(1000);
-                  }else if(numOfWifi <= 0){
-                        digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                        delay(2000);
-                  }else{
-                        for(int cff = 0; cff <10; cff++){
+                  for(;;){
+                        Pixels.clear(); // Set all pixel colors to 'off'
+                        Pixels.show();   // Send the updated pixel colors to the hardware.
+                        delay(500);
+
+                        Pixels.setPixelColor(0, Pixels.Color(255, 255, 255));
+                        Pixels.show();   // Send the updated pixel colors to the hardware.
+                        delay(500);
+                        // digitalWrite(ledpin, HIGH);
+                        // delay(ledDelay);
+                        // digitalWrite(ledpin, LOW);
+                        // delay(ledDelay);
+
+                        // if((numOfWifi > 0) && (numOfWifi < 3)){
+                        //       digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
+                        //       delay(1000);
+                        //       digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                        //       delay(1000);
+                        //       digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
+                        //       delay(1000);
+                        //       digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                        //       delay(1000);
+                        // }else if(numOfWifi <= 0){
+                        //       digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                        //       delay(2000);
+                        // }else{
+                        //       for(int cff = 0; cff <10; cff++){
+                        //             digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
+                        //             delay(100);
+                        //             digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                        //             delay(100);
+                        //       }
+                        // }
+                  } 
+            }
+      #else
+            void Task1code( void * pvParameters ){
+                  Serial.print("Task1 running on core ");
+                  Serial.println(xPortGetCoreID());
+                  pinMode(KXN_LED_DEFAULT, OUTPUT);
+                  for(;;){
+                        // digitalWrite(ledpin, HIGH);
+                        // delay(ledDelay);
+                        // digitalWrite(ledpin, LOW);
+                        // delay(ledDelay);
+
+                        if((numOfWifi > 0) && (numOfWifi < 3)){
                               digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
-                              delay(100);
+                              delay(1000);
                               digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
-                              delay(100);
+                              delay(1000);
+                              digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
+                              delay(1000);
+                              digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                              delay(1000);
+                        }else if(numOfWifi <= 0){
+                              digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                              delay(2000);
+                        }else{
+                              for(int cff = 0; cff <10; cff++){
+                                    digitalWrite(KXN_LED_DEFAULT, KXN_LED_ACTIVE_DEFAULT);
+                                    delay(100);
+                                    digitalWrite(KXN_LED_DEFAULT, !KXN_LED_ACTIVE_DEFAULT);
+                                    delay(100);
+                              }
                         }
-                  }
-            } 
-      }
+                  } 
+            }
+      #endif
 
       void Task2code( void * pvParameters ){
       Serial.print("Task2 running on core ");
@@ -362,7 +420,7 @@
 
             };
       
-      #elif defined(VIETDUINO_ESP32S3_N16R8) 
+      #elif defined(VIETDUINO_ESP32S3_N16R8) || defined(ESP32S3_N16R8_DEVKIT)
       pin_info my_pin_array[] = {
       {1,    7,   _PIN_TYPE_D_,   MODE_PIN_IO,    7,   "D2"},
       {2,    14,    _PIN_TYPE_D_,    MODE_PIN_IO,   14,   "D3"},

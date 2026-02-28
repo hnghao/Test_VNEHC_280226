@@ -10,7 +10,8 @@
 //#define MTINY_ESP8266
 // #define NODEMCU_ESP8266
 // #define VIETDUINO_ESP32
-#define VIETDUINO_ESP32S3_N16R8
+// #define VIETDUINO_ESP32S3_N16R8
+#define ESP32S3_N16R8_DEVKIT
 
 
 #if defined(ARDUINO_AVR_ADK)       
@@ -103,6 +104,12 @@
         #define BOARD "VIETDUINO_ESP32S3_N16R8"
         #define NUM_DIGITAL_PINS_2        NUM_DIGITAL_PINS
         #define KXN_LED_DEFAULT     12
+        #define KXN_LED_ACTIVE_DEFAULT      1
+
+    #elif defined(ESP32S3_N16R8_DEVKIT)
+        #define BOARD "ESP32S3_N16R8_DEVKIT"
+        #define NUM_DIGITAL_PINS_2        NUM_DIGITAL_PINS
+        #define KXN_LED_DEFAULT    48
         #define KXN_LED_ACTIVE_DEFAULT      1
     
     #endif
